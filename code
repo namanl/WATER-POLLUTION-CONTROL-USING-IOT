@@ -1,0 +1,120 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS 5
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+byte statusLed	= 13;
+byte	sensorInterrupt =	0;	// 0 = digital pin 2
+byte	sensorPin	=	2;	
+float calibrationFactor = 4.5;
+volatile byte pulseCount;
+float flowRate;
+unsigned int flowMilliLitres;
+unsigned long totalMilliLitres;
+unsigned long oldTime;
+float Celcius=0;
+float Fahrenheit=0;
+const int analogInPin = A1;
+int sensorValue = 0;
+unsigned long int avgValue;
+float b;
+int buf[10],temp;
+
+
+void setup(void){
+Serial.begin(9600);
+sensors.begin();
+digitalWrite(statusLed, HIGH); 
+pinMode(sensorPin, INPUT);
+digitalWrite(sensorPin, HIGH);
+pulseCount flowRate flowMilliLitres totalMilliLitres oldTime
+= 0;
+= 0.0;
+= 0;
+= 0;
+= 0;
+0.
+attachInterrupt(sensorInterrupt, pulseCounter, FALLING);
+}
+ 
+void loop(void){
+int sensorValue = analogRead(A0);// read the input on analog pin 0:
+float voltage = sensorValue * (5.0 / 1024.0); // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+Serial.println(voltage); // print out the value you read:
+delay(500);
+sensors.requestTemperatures();
+delay(1000);
+Celcius=sensors.getTempCByIndex(0);
+Fahrenheit=sensors.toFahrenheit(Celcius);
+Serial.print(" \nC");
+Serial.print(Celcius);
+Serial.print(" F");
+Serial.println(Fahrenheit);
+Serial.print("\n");
+delay(1000);
+if((millis() - oldTime) > 1000) 
+per second{ 
+detachInterrupt(sensorInterrupt);
+flowRate = ((1000.0 / (millis() - oldTime)) * pulseCount) / calibrationFactor;
+oldTime = millis();
+flowMilliLitres = (flowRate / 60) * 1000;
+totalMilliLitres += flowMilliLitres;
+unsigned int frac;
+Serial.print(int(flowRate)); // Print the integer part of the variable
+Serial.print("L/min");
+Serial.print("\t");	// Print tab space
+Serial.print("Output Liquid Quantity: "); 
+Serial.print(totalMilliLitres);
+Serial.println("mL");
+Serial.print("\t");	// Print tab space
+Serial.print(totalMilliLitres/1000); 
+Serial.print("L"); Serial.print("\n");
+pulseCount = 0;
+attachInterrupt(sensorInterrupt, pulseCounter, FALLING);
+}
+for(int i=0;i<10;i++){
+buf[i]=analogRead(analogInPin);
+delay(10);
+}
+for(int i=0;i<9;i++){
+for(int j=i+1;j<10;j++){
+if(buf[i]>buf[j]){
+temp=buf[i];
+buf[i]=buf[j];
+buf[j]=temp;
+}
+}
+}
+avgValue=0;
+for(int i=2;i<8;i++)
+avgValue+=buf[i];
+float pHVol=(float)avgValue*5.0/1024/6; float phValue = -5.70 * pHVol + 21.34; Serial.print("sensor = "); Serial.println(phValue);
+delay(20);
+digitalWrite(10, LOW);
+digitalWrite(11, LOW);
+digitalWrite(12, LOW);
+digitalWrite(9, LOW);
+if (phValue <= 8.5 && phValue >= 6.5){ if (voltage <= 4.2){
+if (Celcius >= 20 && Celcius <= 30){ digitalWrite(10, HIGH);
+}
+else if (Celcius>= 15 && Celcius <= 50){ digitalWrite(11, HIGH);
+}
+}
+}
+else if (phValue >= 6 && phValue <= 6.5){ if (voltage <= 4.2){
+if (Celcius>= 15 && Celcius <= 50){
+digitalWrite(11, HIGH);
+}
+}
+}
+else{
+digitalWrite(12, HIGH);
+}
+if (totalMilliLitres/1000 > 100){
+digitalWrite(9, HIGH);
+}
+}
+void pulseCounter(){
+pulseCount++;
+}
